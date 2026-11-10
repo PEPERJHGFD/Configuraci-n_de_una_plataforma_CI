@@ -25,20 +25,20 @@ Si ya existe un remoto llamado `origin`, actualízalo con `git remote set-url or
 
 ## Proyecto y pruebas
 
-`calculadora.py` contiene la función `suma`. `test_calculadora.py` comprueba que sumar 2 y 3 devuelve 5. Para ejecutar la prueba localmente:
+`calculadora.py` contiene las funciones `suma`, `resta` y `multiplicacion`. `test_calculadora.py` verifica cada operación. Para ejecutar las pruebas y revisar la cobertura localmente:
 
 ```bash
-python -m pip install pytest
-python -m pytest
+python -m pip install pytest pytest-cov
+python -m pytest --cov=. --cov-report=term-missing
 ```
 
 ## Integración continua
 
-El workflow `.github/workflows/ci.yml` se ejecuta en cada `push`. Prepara Python 3.12, instala `pytest`, ejecuta las pruebas y genera `artefactos/calculadora.py`. Después comprime esa carpeta en `artefacto.zip` y publica el ZIP con el nombre `build-python` mediante GitHub Actions.
+El workflow `.github/workflows/ci.yml` se ejecuta en cada `push`. Prepara Python 3.12, instala `pytest` y `pytest-cov`, ejecuta las pruebas y genera `coverage.xml`. Publica el reporte con el nombre `coverage-report`. Si las pruebas fallan, la ejecución se detiene antes de publicar reportes o el artefacto de build.
 
-Esta fase Build no compila el código Python: reúne el archivo fuente en una carpeta distribuible. El artefacto es el ZIP descargable que contiene `artefactos/calculadora.py`. Si las pruebas fallan, los pasos siguientes no se ejecutan y no se publica el artefacto.
+La fase Build no compila el código Python: reúne el archivo fuente en una carpeta distribuible. El artefacto `build-python` es un ZIP descargable que contiene `artefactos/calculadora.py`. El reporte de cobertura `coverage-report` indica qué porcentaje del código está cubierto y qué líneas faltan por probar.
 
-Para comprobarlo localmente, ejecuta `python -m pytest`. El workflow crea el artefacto en GitHub Actions. Descarga `build-python` desde **Artifacts**: GitHub empaqueta el archivo `artefacto.zip` en el ZIP descargado; al extraerlo y abrir `artefacto.zip`, encontrarás `artefactos/calculadora.py`.
+El workflow genera ambos artefactos en GitHub Actions. Descárgalos desde **Artifacts** en la ejecución correspondiente.
 
 ## Evidencias y reflexión
 
@@ -46,13 +46,12 @@ Incluyan en la entrega:
 
 - URL del repositorio.
 - Archivo `.github/workflows/ci.yml`.
-- Captura de una ejecución exitosa en **Actions**, con los pasos Build, ZIP y subida exitosos.
-- Captura del artefacto `build-python` y de `calculadora.py` dentro de `artefacto.zip` después de descargarlo.
+- Captura de pruebas locales exitosas y del porcentaje de cobertura.
+- Captura de una ejecución exitosa en **Actions** y de los artefactos `coverage-report` y `build-python`.
+- Captura del reporte automático de cobertura.
 - Captura de una ejecución fallida en **Actions**.
-- Respuestas a las preguntas de la actividad:
-  - Generar artefactos automáticamente evita repetir manualmente el empaquetado y permite descargar el mismo resultado de cada ejecución.
-  - Si las pruebas o el build fallan, el workflow se detiene y no publica un artefacto incorrecto.
-  - Obtener el mismo artefacto reduce diferencias entre lo probado y lo distribuido.
+- Respuestas a las preguntas de cobertura: porcentaje obtenido, existencia de código sin probar y funciones faltantes. Con pruebas para cada función, se espera 100 % de cobertura de líneas de `calculadora.py`.
+- Relación de la falla intencional con **Fail Fast**, **Feedback inmediato** y **Shift Left Testing**.
 - Una conclusión personal de cada integrante, con sus propias palabras.
 
 Para generar la ejecución fallida solicitada, cambien temporalmente `return a + b` por `return a - b` en `calculadora.py`, hagan commit y push, y capturen el fallo en **Actions**. Después restauren la suma correcta, hagan otro commit y push, y confirmen que el workflow vuelve a pasar. Así el repositorio termina en estado funcional.
